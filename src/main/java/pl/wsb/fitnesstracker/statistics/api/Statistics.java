@@ -1,36 +1,56 @@
 package pl.wsb.fitnesstracker.statistics.api;
 
-import jakarta.annotation.Nullable;
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import java.math.BigDecimal;
 
-@Entity
-@Table(name = "Statistics")
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+import lombok.Getter;
+import lombok.Setter;
+import pl.wsb.fitnesstracker.user.api.User;
+
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
+@Setter
+@Entity
+@Table(name = "statistics")
 public class Statistics {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Nullable
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "total_trainings", nullable = false)
-    private int totalTrainings;
+    // Owning side of OneToOne -> User
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "user_id",
+        nullable = false,
+        unique = true,
+        foreignKey = @ForeignKey(name = "fk_statistics_user")
+    )
+    private User user;
 
-    @Column(name = "total_distance")
-    private double totalDistance;
+    @Column(name = "total_trainings", nullable = false)
+    private Integer totalTrainings = 0;
+
+    @Column(name = "total_distance", precision = 10, scale = 2)
+    private BigDecimal totalDistance;
 
     @Column(name = "total_calories_burned")
-    private int totalCaloriesBurned;
+    private Integer totalCaloriesBurned;
 
-    public Statistics(int totalTrainings, double totalDistance, int totalCaloriesBurned) {
-        this.totalTrainings = totalTrainings;
-        this.totalDistance = totalDistance;
-        this.totalCaloriesBurned = totalCaloriesBurned;
+    public Statistics() {
+    }
+
+    public Statistics(User user) {
+        this.user = user;
     }
 }
